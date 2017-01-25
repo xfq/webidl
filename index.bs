@@ -1445,12 +1445,9 @@ interface will be stringified to the value of the attribute.  See
 
 The following [=extended attributes=]
 are applicable to regular and static attributes:
-[{{Clamp}}],
-[{{EnforceRange}}],
 [{{Exposed}}],
 [{{SameObject}}],
-[{{SecureContext}}],
-[{{TreatNullAs}}].
+[{{SecureContext}}].
 
 The following [=extended attributes=]
 are applicable only to regular attributes:
@@ -1480,7 +1477,7 @@ are applicable only to regular attributes:
 
 <pre class="grammar" id="prod-AttributeRest">
     AttributeRest :
-        "attribute" Type AttributeName ";"
+        "attribute" TypeWithAttributes AttributeName ";"
 </pre>
 
 <pre class="grammar" id="prod-AttributeName">
@@ -1887,11 +1884,6 @@ The following extended attributes are applicable to operations:
 [{{TreatNullAs}}],
 [{{Unforgeable}}].
 
-The following extended attributes are applicable to operation arguments:
-[{{Clamp}}],
-[{{EnforceRange}}],
-[{{TreatNullAs}}].
-
 <pre class="grammar" id="prod-DefaultValue">
     DefaultValue :
         ConstValue
@@ -1949,13 +1941,8 @@ The following extended attributes are applicable to operation arguments:
 
 <pre class="grammar" id="prod-Argument">
     Argument :
-        ExtendedAttributeList OptionalOrRequiredArgument
-</pre>
-
-<pre class="grammar" id="prod-OptionalOrRequiredArgument">
-    OptionalOrRequiredArgument :
-        "optional" Type ArgumentName Default
-        Type Ellipsis ArgumentName
+        "optional" TypeWithAttributes ArgumentName Default
+        TypeWithAttributes Ellipsis ArgumentName
 </pre>
 
 <pre class="grammar" id="prod-ArgumentName">
@@ -3761,12 +3748,12 @@ The following extended attributes are applicable to [=iterable declarations=]:
 
 <pre class="grammar" id="prod-Iterable">
     Iterable :
-        "iterable" "&lt;" Type OptionalType "&gt;" ";"
+        "iterable" "&lt;" TypeWithAttributes OptionalType "&gt;" ";"
 </pre>
 
 <pre class="grammar" id="prod-OptionalType">
     OptionalType :
-        "," Type
+        "," TypeWithAttributes
         ε
 </pre>
 
@@ -3850,7 +3837,7 @@ interfaces must not have an
 
 <pre class="grammar" id="prod-MaplikeRest">
     MaplikeRest :
-        "maplike" "&lt;" Type "," Type "&gt;" ";"
+        "maplike" "&lt;" TypeWithAttributes "," TypeWithAttributes "&gt;" ";"
 </pre>
 
 No [=extended attributes=]
@@ -3939,7 +3926,7 @@ interfaces must not have an
 
 <pre class="grammar" id="prod-SetlikeRest">
     SetlikeRest :
-        "setlike" "&lt;" Type "&gt;" ";"
+        "setlike" "&lt;" TypeWithAttributes "&gt;" ";"
 </pre>
 
 No [=extended attributes=]
@@ -4299,10 +4286,6 @@ The following extended attributes are applicable to dictionaries:
 [{{Exposed}}],
 [{{SecureContext}}],
 
-The following extended attributes are applicable to dictionary members:
-[{{Clamp}}],
-[{{EnforceRange}}].
-
 <div data-fill-with="grammar-Partial"></div>
 
 <div data-fill-with="grammar-PartialDefinition"></div>
@@ -4314,19 +4297,14 @@ The following extended attributes are applicable to dictionary members:
 
 <pre class="grammar" id="prod-DictionaryMembers">
     DictionaryMembers :
-        ExtendedAttributeList DictionaryMember DictionaryMembers
+        DictionaryMember DictionaryMembers
         ε
 </pre>
 
 <pre class="grammar" id="prod-DictionaryMember">
     DictionaryMember :
-        Required Type identifier Default ";"
-</pre>
-
-<pre class="grammar" id="prod-Required">
-    Required :
-        "required"
-        ε
+        "required" TypeWithAttributes identifier Default ";"
+        TypeWithAttributes identifier Default ";"
 </pre>
 
 <pre class="grammar" id="prod-PartialDictionary">
@@ -4862,7 +4840,7 @@ defined in this specification are applicable to [=typedefs=].
 
 <pre class="grammar" id="prod-Typedef">
     Typedef :
-        "typedef" Type identifier ";"
+        "typedef" TypeWithAttributes identifier ";"
 </pre>
 
 <div class="example">
@@ -5154,6 +5132,16 @@ is a string, not necessarily unique, that identifies the type.
 Each sub-section below defines what the type name is for each
 type.
 
+Additional types can be created from existing ones by specifying certain
+[=extended attributes=] on the existing types. For example,
+<code>[Clamp] long</code> defines a new type whose behavior is based on
+that of the {{long}} type, but modified as specified by the [{{Clamp}}]
+extended attribute.
+
+The [=type name=] of a type annotated with an [=extended attribute=] is
+the concatenation of the type name of the annotated type and a string
+corresponding to the extended attribute's identifier.
+
 <p id="type-conversion-exceptions">
     When conversions are made from language binding specific types to
     IDL types in order to invoke an [=operation=]
@@ -5173,6 +5161,12 @@ type.
     Type :
         SingleType
         UnionType Null
+</pre>
+
+<pre class="grammar" id="prod-TypeWithAttributes">
+    TypeWithAttributes :
+        ExtendedAttributeList SingleType
+        ExtendedAttributeList UnionType Null
 </pre>
 
 <pre class="grammar" id="prod-SingleType">
@@ -5204,12 +5198,12 @@ type.
         PrimitiveType Null
         StringType Null
         identifier Null
-        "sequence" "&lt;" Type "&gt;" Null
+        "sequence" "&lt;" TypeWithAttributes "&gt;" Null
         "object" Null
         "Error" Null
         "DOMException" Null
         BufferRelatedType Null
-        "FrozenArray" "&lt;" Type "&gt;" Null
+        "FrozenArray" "&lt;" TypeWithAttributes "&gt;" Null
         RecordType Null
 </pre>
 
@@ -5268,7 +5262,7 @@ type.
 
 <pre class="grammar" id="prod-RecordType">
     RecordType :
-        "record" "&lt;" StringType "," Type "&gt;"
+        "record" "&lt;" StringType "," TypeWithAttributes "&gt;"
 </pre>
 
 <pre class="grammar" id="prod-Null">
@@ -6098,6 +6092,7 @@ type is the concatenation of the type name for |T| and the string
 An <dfn id="dfn-extended-attribute" export>extended attribute</dfn> is an annotation
 that can appear on
 definitions,
+[=types=],
 [=interface members=],
 [=namespace members=],
 [=dictionary members=],
@@ -6503,6 +6498,9 @@ when passed to a [=platform object=] expecting that type, and how IDL values
 of that type are <dfn id="dfn-convert-idl-to-ecmascript-value" export lt="converted to an ECMAScript value|converted to ECMAScript values">converted to ECMAScript values</dfn>
 when returned from a platform object.
 
+Note that the sub-sections and algorithms below also apply to the related types created by applying
+extended attributes to the types named in their headers.
+
 
 <h4 id="es-any">any</h4>
 
@@ -6788,27 +6786,16 @@ may return any value, which will be discarded.
         1.  Let |lowerBound| be -2<sup>|bitLength| − 1</sup>.
         1.  Let |upperBound| be 2<sup>|bitLength| − 1</sup> − 1.
     1.  Set |x| to [=?=] [=ToNumber=](|V|).
-    1.  If the conversion to an IDL value is being performed due to any of the following:
-        *   |V| is being assigned to an [=attribute=] annotated with the [{{EnforceRange}}] [=extended attribute=],
-        *   |V| is being passed as an [=operation=] argument annotated with the [{{EnforceRange}}] extended attribute, or
-        *   |V| is being used as the value of a [=dictionary member=] annotated with the [{{EnforceRange}}] extended attribute,
-
-        then:
-
+    1.  If the conversion is to an IDL type annotated with the [{{EnforceRange}}]
+        [=extended attribute=], then:
         1.  If |x| is <emu-val>NaN</emu-val>, +∞, or −∞,
             then [=ECMAScript/throw=] a <emu-val>TypeError</emu-val>.
         1.  Set |x| to [=!=] <a abstract-op>IntegerPart</a>(|x|).
         1.  If |x| &lt; |lowerBound| or |x| &gt; |upperBound|,
             then [=ECMAScript/throw=] a <emu-val>TypeError</emu-val>.
         1.  Return |x|.
-
-    1.  If |x| is not <emu-val>NaN</emu-val> and the conversion to an IDL value is being performed due to any of the following:
-        *   |V| is being assigned to an [=attribute=] annotated with the [{{Clamp}}] [=extended attribute=],
-        *   |V| is being passed as an [=operation=] argument annotated with the [{{Clamp}}] extended attribute, or
-        *   |V| is being used as the value of a [=dictionary member=] annotated with the [{{Clamp}}] extended attribute,
-
-        then:
-
+    1.  If |x| is not <emu-val>NaN</emu-val> and the conversion is to an IDL type annotated with the
+        [{{Clamp}}] extended attribute, then:
         1.  Set |x| to [=min=]([=max=](|x|, |lowerBound|), |upperBound|).
         1.  Round |x| to the nearest integer, choosing the even integer if it lies halfway between two,
             and choosing +0 rather than −0.
@@ -6962,10 +6949,7 @@ value when its bit pattern is interpreted as an unsigned 64 bit integer.
     1.  If |V| is <emu-val>null</emu-val>
         and the conversion to an IDL value is being performed due
         to any of the following:
-        *   |V| is being passed as an [=operation=]
-            argument that is annotated with [{{TreatNullAs}}],
-        *   |V| is being assigned to an [=attribute=]
-            annotated with [{{TreatNullAs}}],
+        *   |V| is being converted to an IDL type annotated with [{{TreatNullAs}}],
         *   |V| is being returned from a [=user object=] implementation of an
             operation annotated with [{{TreatNullAs}}], or
         *   |V| is being returned from a [=user object=] implementation of an
@@ -7892,26 +7876,18 @@ whose presence affects only the ECMAScript binding.
 
 <h4 id="Clamp" extended-attribute lt="Clamp">[Clamp]</h4>
 
-If the [{{Clamp}}]
-[=extended attribute=]
-appears on an [=operation=] argument,
-writable [=attribute=] or
-[=dictionary member=]
-whose type is one of the [=integer types=],
-it indicates that when an ECMAScript <emu-val>Number</emu-val> is
-converted to the IDL type, out of range values will be clamped to the range
-of valid values, rather than using the operators that use a modulo operation
-([=ToInt32=], [=ToUint32=], etc.).
+If the [{{Clamp}}] [=extended attribute=] appears on one of the [=integer types=], it creates a new
+IDL type such that that when an ECMAScript <emu-val>Number</emu-val> is converted to the IDL type,
+out-of-range values will be clamped to the range of valid values, rather than using the operators
+that use a modulo operation ([=ToInt32=], [=ToUint32=], etc.).
 
 The [{{Clamp}}]
 extended attribute must
 [=takes no arguments|take no arguments=].
 
-The [{{Clamp}}] extended attribute
-must not appear on a [=read only=]
-attribute, or an attribute, operation argument or dictionary member
-that is not of an integer type.  It also must not
-be used in conjunction with the [{{EnforceRange}}]
+A [=type=] annotated with the [{{Clamp}}] extended attribute must not appear in a [=read only=]
+attribute. A type must not be annotated with both the [{{Clamp}}] and [{{EnforceRange}}] extended
+attributes. A type that is not an [=integer type=] must not be annotated with the [{{Clamp}}]
 extended attribute.
 
 See the rules for converting ECMAScript values to the various IDL integer
@@ -8036,29 +8012,20 @@ for an interface is to be implemented.
 
 <h4 id="EnforceRange" extended-attribute lt="EnforceRange">[EnforceRange]</h4>
 
-If the [{{EnforceRange}}]
-[=extended attribute=]
-appears on an [=operation=] argument,
-writable [=regular attribute=] or
-[=dictionary member=]
-whose type is one of the [=integer types=],
-it indicates that when an ECMAScript <emu-val>Number</emu-val> is
-converted to the IDL type, out of range values will cause an exception to
-be thrown, rather than converted to being a valid value using the operators that use a modulo operation
-([=ToInt32=], [=ToUint32=], etc.).  The <emu-val>Number</emu-val>
-will be rounded towards zero before being checked against its range.
+If the [{{EnforceRange}}] [=extended attribute=] appears on one of the [=integer types=], it creates
+a new IDL type such that that when an ECMAScript <emu-val>Number</emu-val> is converted to the IDL
+type, out-of-range values will cause an exception to be thrown, rather than being converted to a
+valid value using using the operators that use a modulo operation ([=ToInt32=], [=ToUint32=], etc.).
+The <emu-val>Number</emu-val> will be rounded toward zero before being checked against its range.
 
 The [{{EnforceRange}}]
 extended attribute must
 [=takes no arguments|take no arguments=].
 
-The [{{EnforceRange}}] extended attribute
-must not appear on a [=read only=]
-attribute, a [=static attribute=],
-or an attribute, operation argument or dictionary member
-that is not of an integer type.  It also must not
-be used in conjunction with the [{{Clamp}}]
-extended attribute.
+A [=type=] annotated with the [{{EnforceRange}}] extended attribute must not appear in a
+[=read only=] attribute. A type must not be annotated with both the [{{Clamp}}] and
+[{{EnforceRange}}] extended attributes. A type that is not an [=integer type=] must not be annotated
+with the [{{Clamp}}] extended attribute.
 
 See the rules for converting ECMAScript values to the various IDL integer
 types in [[#es-type-mapping]]
@@ -9411,17 +9378,12 @@ for the specific requirements that the use of
 
 <h4 id="TreatNullAs" extended-attribute lt="TreatNullAs">[TreatNullAs]</h4>
 
-If the [{{TreatNullAs}}]
-[=extended attribute=]
-appears on an [=attribute=]
-or [=operation=] argument whose type is
-{{DOMString}},
-it indicates that a <emu-val>null</emu-val> value
-assigned to the attribute or passed as the operation argument will be
-handled differently from its default handling.  Instead of being stringified
-to “null”, which is the default,
-it will be converted to the empty string “”.
+If the [{{TreatNullAs}}] [=extended attribute=] appears on the {{DOMString}} type, it creates
+a new IDL type such that that when an ECMAScript <emu-val>null</emu-val> is converted to the IDL
+type, it will be handled differently from its default handling. Instead of being stringified to
+“null”, which is the default, it will be converted to the empty string “”.
 
+<!-- TODO does anything on the platform use this? If so, document it in a comment please. -->
 If [{{TreatNullAs}}] is specified on
 an operation itself, and that operation is on a [=callback interface=],
 then it indicates that a <a href="#es-user-objects">user object implementing the interface</a> will have the return
@@ -9432,9 +9394,8 @@ The [{{TreatNullAs}}]
 extended attribute must [=takes an identifier|take the identifier=]
 <code>EmptyString</code>.
 
-The [{{TreatNullAs}}] extended attribute
-must not be specified on an operation argument,
-attribute or operation return value whose type is not {{DOMString}}.
+The [{{TreatNullAs}}] extended attribute must not be specified on a [=type=] that is not
+{{DOMString}}.
 
 Note: This means that even an attribute of type <code class="idl">DOMString?</code> must not
 use [{{TreatNullAs}}], since <emu-val>null</emu-val>
