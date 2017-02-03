@@ -1940,8 +1940,8 @@ The following extended attributes are applicable to operations:
 
 <pre class="grammar" id="prod-Argument">
     Argument :
-        "optional" TypeWithExtendedAttributes ArgumentName Default
-        TypeWithExtendedAttributes Ellipsis ArgumentName
+        ExtendedAttributeList "optional" TypeWithExtendedAttributes ArgumentName Default
+        ExtendedAttributeList Type Ellipsis ArgumentName
 </pre>
 
 <pre class="grammar" id="prod-ArgumentName">
@@ -4302,8 +4302,8 @@ The following extended attributes are applicable to dictionaries:
 
 <pre class="grammar" id="prod-DictionaryMember">
     DictionaryMember :
-        "required" TypeWithExtendedAttributes identifier Default ";"
-        TypeWithExtendedAttributes identifier Default ";"
+        ExtendedAttributeList "required" TypeWithExtendedAttributes identifier Default ";"
+        ExtendedAttributeList Type identifier Default ";"
 </pre>
 
 <pre class="grammar" id="prod-PartialDictionary">
