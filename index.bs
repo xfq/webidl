@@ -1881,7 +1881,6 @@ The following extended attributes are applicable to operations:
 [{{Exposed}}],
 [{{NewObject}}],
 [{{SecureContext}}],
-[{{TreatNullAs}}],
 [{{Unforgeable}}].
 
 <pre class="grammar" id="prod-DefaultValue">
@@ -6946,17 +6945,9 @@ value when its bit pattern is interpreted as an unsigned 64 bit integer.
     An ECMAScript value |V| is [=converted to an IDL value|converted=]
     to an IDL {{DOMString}} value by running the following algorithm:
 
-    1.  If |V| is <emu-val>null</emu-val>
-        and the conversion to an IDL value is being performed due
-        to any of the following:
-        *   |V| is being converted to an IDL type annotated with [{{TreatNullAs}}],
-        *   |V| is being returned from a [=user object=] implementation of an
-            operation annotated with [{{TreatNullAs}}], or
-        *   |V| is being returned from a [=user object=] implementation of an
-            attribute annotated with [{{TreatNullAs}}],
-
-        then return the {{DOMString}}
-        value that represents the empty string.
+    1.  If |V| is <emu-val>null</emu-val> and the conversion is to an IDL type annotated with the
+        [{{TreatNullAs}}] extended attribute then return the {{DOMString}} value that represents
+        the empty string.
     1.  Let |x| be [=ToString=](|V|).
     1.  Return the IDL {{DOMString}} value that represents the same sequence of code units as the one the ECMAScript <emu-val>String</emu-val> value |x| represents.
 </div>
@@ -9383,13 +9374,6 @@ a new IDL type such that that when an ECMAScript <emu-val>null</emu-val> is conv
 type, it will be handled differently from its default handling. Instead of being stringified to
 “null”, which is the default, it will be converted to the empty string “”.
 
-<!-- TODO does anything on the platform use this? If so, document it in a comment please. -->
-If [{{TreatNullAs}}] is specified on
-an operation itself, and that operation is on a [=callback interface=],
-then it indicates that a <a href="#es-user-objects">user object implementing the interface</a> will have the return
-value of the function that implements the operation handled in the same way as for operation arguments
-and attributes, as above.
-
 The [{{TreatNullAs}}]
 extended attribute must [=takes an identifier|take the identifier=]
 <code>EmptyString</code>.
@@ -9397,13 +9381,9 @@ extended attribute must [=takes an identifier|take the identifier=]
 The [{{TreatNullAs}}] extended attribute must not be specified on a [=type=] that is not
 {{DOMString}}.
 
-Note: This means that even an attribute of type <code class="idl">DOMString?</code> must not
+Note: This means that even <code class="idl">DOMString?</code> must not
 use [{{TreatNullAs}}], since <emu-val>null</emu-val>
 is a valid value of that type.
-
-The [{{TreatNullAs}}] extended attribute
-also must not be specified on an operation on
-a non-callback interface.
 
 See [[#es-DOMString]]
 for the specific requirements that the use of
@@ -9413,7 +9393,7 @@ for the specific requirements that the use of
 
     The following [=IDL fragment=] defines an interface that has one
     attribute with the [{{TreatNullAs}}]
-    extended attribute, and one operation with an argument that has
+    extended attribute, and one operation whose argument's type has
     the extended attribute:
 
     <pre highlight="webidl">
