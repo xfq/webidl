@@ -5186,7 +5186,7 @@ corresponding to the extended attribute's identifier.
 
 <pre class="grammar" id="prod-UnionMemberType">
     UnionMemberType :
-        NonAnyType
+        ExtendedAttributeList NonAnyType
         UnionType Null
 </pre>
 
