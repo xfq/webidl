@@ -4827,7 +4827,7 @@ the type in the IDL.
 <pre highlight="webidl" class="syntax">typedef type identifier;</pre>
 
 The type being given a new name is specified after the <emu-t>typedef</emu-t>
-keyword (matching <emu-nt><a href="#prod-Type">Type</a></emu-nt>), and the
+keyword (matching <emu-nt><a href="#prod-Type">TypeWithExtendedAttributes</a></emu-nt>), and the
 <emu-t class="regex"><a href="#prod-identifier">identifier</a></emu-t> token following the
 type gives the name.
 
@@ -5131,21 +5131,6 @@ is a string, not necessarily unique, that identifies the type.
 Each sub-section below defines what the type name is for each
 type.
 
-Additional types can be created from existing ones by specifying certain
-[=extended attributes=] on the existing types. For example,
-<code>[Clamp] long</code> defines a new type whose behavior is based on
-that of the {{long}} type, but modified as specified by the [{{Clamp}}]
-extended attribute.
-
-The following extended attributes are applicable to types:
-[{{Clamp}}],
-[{{EnforceRange}}],
-[{{LegacyTreatNullAsEmptyString}}].
-
-The [=type name=] of a type annotated with an [=extended attribute=] is
-the concatenation of the type name of the annotated type and a string
-corresponding to the extended attribute's identifier.
-
 <p id="type-conversion-exceptions">
     When conversions are made from language binding specific types to
     IDL types in order to invoke an [=operation=]
@@ -5274,7 +5259,6 @@ corresponding to the extended attribute's identifier.
         "?"
         ε
 </pre>
-
 
 <h4 oldids="dom-any" id="idl-any" interface>any</h4>
 
@@ -5949,6 +5933,54 @@ and joining them with the string “Or”.
 
 <div data-fill-with="grammar-NonAnyType"></div>
 
+
+<h4 id="idl-types-with-extended-attributes">Types with extended attributes</h4>
+
+Additional types can be created from existing ones by specifying certain [=extended attributes=] on
+the existing types. For example, <code>[Clamp] long</code> defines a new type whose behavior is
+based on that of the {{long}} type, but modified as specified by the [{{Clamp}}] extended attribute.
+
+<p id="extended-attributes-applicable-to-types">
+    The following extended attributes are applicable to types:
+    [{{Clamp}}],
+    [{{EnforceRange}}], and
+    [{{LegacyTreatNullAsEmptyString}}].
+</p>
+
+<div algorithm>
+    The <dfn for="IDL type" lt="extended attribute associated with|extended attributes associated with">extended attributes associated with</dfn>
+    a [=type=] |type| are determined as follows:
+
+    1.  Let |extended attributes| be the empty set.
+    1.  If |type| appears as part of a
+        <emu-nt><a href="#prod-TypeWithExtendedAttributes">TypeWithExtendedAttributes</a></emu-nt>
+        production, add the [=extended attributes=] present in the production's
+        <emu-nt><a href="#prod-ExtendedAttributeList">ExtendedAttributeList</a></emu-nt> to
+        |extended attributes|.
+    1.  If |type| is a [=member type=] of a [=union type=] |U|, add the
+        [=extended attributes associated with=] |U| to |extended attributes|.
+    1.  If |type| appears as part of a <emu-nt><a href="#prod-Type">Type</a></emu-nt> production
+        within an <emu-nt><a href="#prod-Argument">Argument</a></emu-nt> production, add to
+        |extended attributes| all of the [=extended attributes=] present in the production's
+        <emu-nt><a href="#prod-ExtendedAttributeList">ExtendedAttributeList</a></emu-nt> that are
+        <a href="#extended-attributes-applicable-to-types">applicable to types</a>.
+    1.  If |type| appears as part of a <emu-nt><a href="#prod-Type">Type</a></emu-nt> production
+        within an <emu-nt><a href="#prod-DictionaryMember">DictionaryMember</a></emu-nt> production,
+        add to |extended attributes| all of the [=extended attributes=] present in the production's
+        <emu-nt><a href="#prod-ExtendedAttributeList">ExtendedAttributeList</a></emu-nt> that are
+        <a href="#extended-attributes-applicable-to-types">applicable to types</a>.
+    1.  If |type| is a [=typedef=], add the [=extended attributes associated with=] the type being
+        given a new name to |extended attributes|.
+    1. Return |extended attributes|.
+</div>
+
+For any [=type=], the [=extended attributes associated with=] it must only contain
+[=extended attributes=] that are
+<a href="#extended-attributes-applicable-to-types">applicable to types</a>.
+
+The [=type name=] of a type associated with [=extended attributes=] is the concatenation of the
+type name of the original type with the set of strings corresponding to the [=identifiers=] of each
+[=extended attribute associated with=] the type.
 
 <h4 oldids="dom-Error" id="idl-Error" interface>Error</h4>
 
@@ -6779,9 +6811,10 @@ may return any value, which will be discarded.
         1.  If |signedness| is "unsigned", then let |lowerBound| be 0.
         1.  Otherwise let |lowerBound| be −2<sup>53</sup> + 1.
 
-            Note: this ensures {{long long}} types annotated with
-            [{{EnforceRange}}] or [{{Clamp}}] [=extended attributes=]
-            are representable in ECMAScript's [=Number type=] as unambiguous integers.
+            Note: this ensures {{long long}} types
+            [=extended attribute associated with|associated with=] [{{EnforceRange}}] or
+            [{{Clamp}}] [=extended attributes=] are representable in ECMAScript's [=Number type=]
+            as unambiguous integers.
 
     1.  Otherwise, if |signedness| is "unsigned", then:
         1.  Let |lowerBound| be 0.
@@ -6790,16 +6823,17 @@ may return any value, which will be discarded.
         1.  Let |lowerBound| be -2<sup>|bitLength| − 1</sup>.
         1.  Let |upperBound| be 2<sup>|bitLength| − 1</sup> − 1.
     1.  Set |x| to [=?=] [=ToNumber=](|V|).
-    1.  If the conversion is to an IDL type annotated with the [{{EnforceRange}}]
-        [=extended attribute=], then:
+    1.  If the conversion is to an IDL type [=extended attribute associated with|associated with=]
+        the [{{EnforceRange}}] [=extended attribute=], then:
         1.  If |x| is <emu-val>NaN</emu-val>, +∞, or −∞,
             then [=ECMAScript/throw=] a <emu-val>TypeError</emu-val>.
         1.  Set |x| to [=!=] <a abstract-op>IntegerPart</a>(|x|).
         1.  If |x| &lt; |lowerBound| or |x| &gt; |upperBound|,
             then [=ECMAScript/throw=] a <emu-val>TypeError</emu-val>.
         1.  Return |x|.
-    1.  If |x| is not <emu-val>NaN</emu-val> and the conversion is to an IDL type annotated with the
-        [{{Clamp}}] extended attribute, then:
+    1.  If |x| is not <emu-val>NaN</emu-val> and the conversion is to an IDL type
+        [=extended attribute associated with|associated with=] the [{{Clamp}}] extended attribute,
+        then:
         1.  Set |x| to [=min=]([=max=](|x|, |lowerBound|), |upperBound|).
         1.  Round |x| to the nearest integer, choosing the even integer if it lies halfway between two,
             and choosing +0 rather than −0.
@@ -6950,9 +6984,9 @@ value when its bit pattern is interpreted as an unsigned 64 bit integer.
     An ECMAScript value |V| is [=converted to an IDL value|converted=]
     to an IDL {{DOMString}} value by running the following algorithm:
 
-    1.  If |V| is <emu-val>null</emu-val> and the conversion is to an IDL type annotated with the
-        [{{LegacyTreatNullAsEmptyString}}] extended attribute then return the {{DOMString}} value
-        that represents the empty string.
+    1.  If |V| is <emu-val>null</emu-val> and the conversion is to an IDL type
+        [=extended attribute associated with|associated with=] the [{{LegacyTreatNullAsEmptyString}}] extended
+        attribute, then return the {{DOMString}} value that represents the empty string.
     1.  Let |x| be [=ToString=](|V|).
     1.  Return the IDL {{DOMString}} value that represents the same sequence of code units as the one the ECMAScript <emu-val>String</emu-val> value |x| represents.
 </div>
@@ -7882,9 +7916,9 @@ extended attribute must
 [=takes no arguments|take no arguments=].
 
 A [=type=] annotated with the [{{Clamp}}] extended attribute must not appear in a [=read only=]
-attribute. A type must not be annotated with both the [{{Clamp}}] and [{{EnforceRange}}] extended
-attributes. A type that is not an [=integer type=] must not be annotated with the [{{Clamp}}]
-extended attribute.
+attribute. A type must not be [=extended attributes associated with|associated with=] both the
+[{{Clamp}}] and [{{EnforceRange}}] extended attributes. A type that is not an [=integer type=] must
+not be [=extended attributes associated with|associated with=] the [{{Clamp}}] extended attribute.
 
 See the rules for converting ECMAScript values to the various IDL integer
 types in [[#es-type-mapping]]
@@ -8019,9 +8053,10 @@ extended attribute must
 [=takes no arguments|take no arguments=].
 
 A [=type=] annotated with the [{{EnforceRange}}] extended attribute must not appear in a
-[=read only=] attribute. A type must not be annotated with both the [{{Clamp}}] and
-[{{EnforceRange}}] extended attributes. A type that is not an [=integer type=] must not be annotated
-with the [{{Clamp}}] extended attribute.
+[=read only=] attribute. A type must not be [=extended attributes associated with|associated with=]
+both the [{{Clamp}}] and [{{EnforceRange}}] extended attributes. A type that is not an
+[=integer type=] must not be [=extended attributes associated with|associated with=] the
+[{{Clamp}}] extended attribute.
 
 See the rules for converting ECMAScript values to the various IDL integer
 types in [[#es-type-mapping]]
@@ -8527,8 +8562,11 @@ it creates a new IDL type such that that when an ECMAScript <emu-val>null</emu-v
 the IDL type, it will be handled differently from its default handling. Instead of being stringified
 to <code>"null"</code>, which is the default, it will be converted to the empty string.
 
-The [{{LegacyTreatNullAsEmptyString}}] extended attribute must not be specified on a [=type=] that
-is not {{DOMString}}.
+The [{{LegacyTreatNullAsEmptyString}}] extended attribute must
+[=takes no arguments|take no arguments=].
+
+The [{{LegacyTreatNullAsEmptyString}}] extended attribute must not be
+[=extended attribute associated with|associated with=] a [=type=] that is not {{DOMString}}.
 
 Note: This means that even <code class="idl">DOMString?</code> must not use
 [{{LegacyTreatNullAsEmptyString}}], since <emu-val>null</emu-val> is a valid value of that type.
