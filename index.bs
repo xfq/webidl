@@ -5137,6 +5137,11 @@ Additional types can be created from existing ones by specifying certain
 that of the {{long}} type, but modified as specified by the [{{Clamp}}]
 extended attribute.
 
+The following extended attributes are applicable to types:
+[{{Clamp}}],
+[{{EnforceRange}}],
+[{{LegacyTreatNullAsEmptyString}}].
+
 The [=type name=] of a type annotated with an [=extended attribute=] is
 the concatenation of the type name of the annotated type and a string
 corresponding to the extended attribute's identifier.
