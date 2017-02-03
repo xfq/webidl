@@ -1477,7 +1477,7 @@ are applicable only to regular attributes:
 
 <pre class="grammar" id="prod-AttributeRest">
     AttributeRest :
-        "attribute" TypeWithAttributes AttributeName ";"
+        "attribute" TypeWithExtendedAttributes AttributeName ";"
 </pre>
 
 <pre class="grammar" id="prod-AttributeName">
@@ -1941,8 +1941,8 @@ The following extended attributes are applicable to operations:
 
 <pre class="grammar" id="prod-Argument">
     Argument :
-        "optional" TypeWithAttributes ArgumentName Default
-        TypeWithAttributes Ellipsis ArgumentName
+        "optional" TypeWithExtendedAttributes ArgumentName Default
+        TypeWithExtendedAttributes Ellipsis ArgumentName
 </pre>
 
 <pre class="grammar" id="prod-ArgumentName">
@@ -3748,12 +3748,12 @@ The following extended attributes are applicable to [=iterable declarations=]:
 
 <pre class="grammar" id="prod-Iterable">
     Iterable :
-        "iterable" "&lt;" TypeWithAttributes OptionalType "&gt;" ";"
+        "iterable" "&lt;" TypeWithExtendedAttributes OptionalType "&gt;" ";"
 </pre>
 
 <pre class="grammar" id="prod-OptionalType">
     OptionalType :
-        "," TypeWithAttributes
+        "," TypeWithExtendedAttributes
         ε
 </pre>
 
@@ -3837,7 +3837,7 @@ interfaces must not have an
 
 <pre class="grammar" id="prod-MaplikeRest">
     MaplikeRest :
-        "maplike" "&lt;" TypeWithAttributes "," TypeWithAttributes "&gt;" ";"
+        "maplike" "&lt;" TypeWithExtendedAttributes "," TypeWithExtendedAttributes "&gt;" ";"
 </pre>
 
 No [=extended attributes=]
@@ -3926,7 +3926,7 @@ interfaces must not have an
 
 <pre class="grammar" id="prod-SetlikeRest">
     SetlikeRest :
-        "setlike" "&lt;" TypeWithAttributes "&gt;" ";"
+        "setlike" "&lt;" TypeWithExtendedAttributes "&gt;" ";"
 </pre>
 
 No [=extended attributes=]
@@ -4303,8 +4303,8 @@ The following extended attributes are applicable to dictionaries:
 
 <pre class="grammar" id="prod-DictionaryMember">
     DictionaryMember :
-        "required" TypeWithAttributes identifier Default ";"
-        TypeWithAttributes identifier Default ";"
+        "required" TypeWithExtendedAttributes identifier Default ";"
+        TypeWithExtendedAttributes identifier Default ";"
 </pre>
 
 <pre class="grammar" id="prod-PartialDictionary">
@@ -4840,7 +4840,7 @@ defined in this specification are applicable to [=typedefs=].
 
 <pre class="grammar" id="prod-Typedef">
     Typedef :
-        "typedef" TypeWithAttributes identifier ";"
+        "typedef" TypeWithExtendedAttributes identifier ";"
 </pre>
 
 <div class="example">
@@ -5163,8 +5163,8 @@ corresponding to the extended attribute's identifier.
         UnionType Null
 </pre>
 
-<pre class="grammar" id="prod-TypeWithAttributes">
-    TypeWithAttributes :
+<pre class="grammar" id="prod-TypeWithExtendedAttributes">
+    TypeWithExtendedAttributes :
         ExtendedAttributeList SingleType
         ExtendedAttributeList UnionType Null
 </pre>
@@ -5198,12 +5198,12 @@ corresponding to the extended attribute's identifier.
         PrimitiveType Null
         StringType Null
         identifier Null
-        "sequence" "&lt;" TypeWithAttributes "&gt;" Null
+        "sequence" "&lt;" TypeWithExtendedAttributes "&gt;" Null
         "object" Null
         "Error" Null
         "DOMException" Null
         BufferRelatedType Null
-        "FrozenArray" "&lt;" TypeWithAttributes "&gt;" Null
+        "FrozenArray" "&lt;" TypeWithExtendedAttributes "&gt;" Null
         RecordType Null
 </pre>
 
@@ -5262,7 +5262,7 @@ corresponding to the extended attribute's identifier.
 
 <pre class="grammar" id="prod-RecordType">
     RecordType :
-        "record" "&lt;" StringType "," TypeWithAttributes "&gt;"
+        "record" "&lt;" StringType "," TypeWithExtendedAttributes "&gt;"
 </pre>
 
 <pre class="grammar" id="prod-Null">
